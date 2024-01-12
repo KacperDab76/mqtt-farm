@@ -8,8 +8,9 @@ var options = {
 var client  = mqtt.connect(options);
 
 client.on("connect",()=>{
-    client.subscribe("/equipment/+/location",{qos:1});
-    client.subscribe("/equipment/+/status",{qos:1});
+    client.subscribe("/equipment/+/location",{qos:2});
+    client.subscribe("/equipment/+/status",{qos:2});
+    // I can really subscribe once to "/equipment/#"
 });
 
 client.on("message",(topic,message)=>{

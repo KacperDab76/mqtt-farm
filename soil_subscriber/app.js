@@ -8,7 +8,7 @@ var options = {
 var client  = mqtt.connect(options);
 
 client.on("connect",()=>{
-    client.subscribe("/soil/#",{qos:1});
+    client.subscribe("/soil/#",{qos:2});
 });
 
 client.on("message",(topic,message)=>{

@@ -7,24 +7,28 @@ var options = {
   }
 
 var client  = mqtt.connect(options)
-var loop_length = 5;
-var delay  = 1000;
-function randomNumber (maxValue){
-    return Math.floor(Math.random()*maxValue+1);
-}
+// how many times readings will be send
+var loop_length = 100;
+// delay between messages 0.5 sec
+var delay  = 500;
+
+// function returns random number +/- maxValue with precision number of digits
+// to emulate longitude and latitude 
 function randomPosition(maxValue,precision){
     // value can be +/-
     // and precision guides number of digits after coma
-    const multi = 10*precision;
+    const multi = Math.pow(10,precision);
     var num = Math.floor(Math.random()*maxValue*multi)/multi;
     var sign = (Math.random()>0.5)?1:-1;
     return sign*num;
 }
 
+// randomly returns on/off status
 function randomStatus(){
     var status = (Math.random()>0.5)?"ON":"OFF";
     return status;
 }
+// retruns location as {latitude,logitude}
 function randomLocation(){
     var precision = 4;
     // it's -90 - +90 with precision deciding number of digits after coma
@@ -33,29 +37,35 @@ function randomLocation(){
     var longitude = randomPosition(180,precision);
     return{latitude,longitude};
 }
+
 // when connected publisher starts to send data
 client.on("connect",()=>{
     var location,status;
     var i = 0;
+
+    // instead of loop I'm using setInterval
     var interval  = setInterval(()=>{
-        // when i was incresed loop_length times end connection
-        // end clear interval to stop repeating
+        // when i was incresed loop_length times
+        //  end client connection
+        // and clear interval to stop repeating
         if (i>loop_length){
             client.end();
             clearInterval(interval);
         }
         else {
+            // prepare objects with data for harvester
             status = JSON.stringify({
                 status: randomStatus()
             });
             location = JSON.stringify({
                 ...randomLocation()
             });
-            console.log("harvester");
-            console.log(status);
+            // log them on console
+            console.log(`harvester ${status}`);
             console.log(location);
-            client.publish("/equipment/harvester/status",status,{qos: 1,retain: false});
-            client.publish("/equipment/harvester/location",location,{qos: 1,retain: false});
+            // publish harvester data
+            client.publish("/equipment/harvester/status",status,{qos: 2,retain: false});
+            client.publish("/equipment/harvester/location",location,{qos: 2,retain: true});
             // same for sprinkler
             status = JSON.stringify({
                 status: randomStatus()
@@ -63,14 +73,15 @@ client.on("connect",()=>{
             location = JSON.stringify({
                 ...randomLocation()
             });
-            console.log("sprinkler");
-            console.log(status);
+            console.log(`sprinkler ${status}`);
             console.log(location);
-            client.publish("/equipment/sprinkler/status",status,{qos: 1,retain: false});
-            client.publish("/equipment/sprinkler/location",location,{qos: 1,retain: false});
+            // publish sprinkler data
+            client.publish("/equipment/sprinkler/status",status,{qos: 2,retain: false});
+            client.publish("/equipment/sprinkler/location",location,{qos: 2,retain: true});
 
 
         }
+        // increase i 
         i++;
     },
     delay);
