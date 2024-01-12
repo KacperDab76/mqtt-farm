@@ -1,0 +1,14 @@
+{
+  "name": "equipment_subscriber",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "author": "kacper dabrowski",
+  "license": "ISC",
+  "dependencies": {
+    "mqtt": "^5.3.4"
+  }
+}
